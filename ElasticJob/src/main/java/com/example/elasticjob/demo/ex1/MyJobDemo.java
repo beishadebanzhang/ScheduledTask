@@ -14,7 +14,7 @@ public class MyJobDemo {
 
     private static CoordinatorRegistryCenter createRegistryCenter() {
         CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(
-                new ZookeeperConfiguration("zk_host:2181", "my-job"));
+                new ZookeeperConfiguration("172.16.200.30:2181", "elastic-job-ssy"));
         regCenter.init();
         return regCenter;
     }
@@ -23,8 +23,8 @@ public class MyJobDemo {
         // 创建作业配置
         // ...
         JobConfiguration jobConfig = JobConfiguration
-                .newBuilder("MyJob", 3)
-                .cron("0/5 * * * * ?")
+                .newBuilder("MyJob", 1)
+                .cron("0 0 3 * * ?")
                 .build();
         return jobConfig;
     }
