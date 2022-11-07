@@ -1,0 +1,16 @@
+SimpleTrigger可以满足的调度需求是：
+    在具体的时间点执行一次，或者在具体的时间点执行，并且以指定的间隔重复执行若干次
+SimpleTrigger的属性包括：
+    开始时间、结束时间、重复次数以及重复的间隔
+    如果重复间隔为0，trigger将会以重复次数并发执行(或者以scheduler可以处理的近似并发数)
+    SimpleTrigger trigger = newTrigger()
+        .withIdentity("trigger8")
+        .startAt(futureDate(5, IntervalUnit.MINUTE)) // 5分钟以后开始触发
+        .withSchedule(simpleSchedule().withIntervalInHours(2).repeatForever()) // 每2小时重复一次
+        .endAt(dateOf(22, 0, 0)) // 结束时间
+        .build();
+Misfire策略:
+    trigger = newTrigger().
+        ...
+        .withMisfireHandlingInstructionNextWithExistingCount()) //
+        .build();

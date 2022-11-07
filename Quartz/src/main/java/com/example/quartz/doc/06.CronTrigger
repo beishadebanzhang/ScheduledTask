@@ -1,0 +1,10 @@
+CronTrigger:
+    基于日历的概念而不是按照SimpleTrigger的精确指定间隔进行重新启动的作业启动计划
+Cron Expressions:
+    trigger = newTrigger()
+        .withIdentity("trigger3", "group1")
+        .withSchedule(cronSchedule("0 0/2 8-17 * * ?"))
+        .withSchedule(dailyAtHourAndMinute(10, 42))
+        .withMisfireHandlingInstructionFireAndProceed())
+        .forJob("myJob", "group1")
+        .build();

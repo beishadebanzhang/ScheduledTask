@@ -1,0 +1,41 @@
+现有定时任务框架:
+    简单的有Java自带的Timer、 ScheduledExecutorService， Spring自带的Task
+    相较复杂的分布式定时任务中间件有XXL-JOB、ElasticJob等
+核心概念:
+    Scheduler:
+        Quartz 中的任务调度器，通过 Trigger 和 JobDetail 可以用来调度、暂停和删除任务。
+        调度器就相当于一个容器，装载着任务和触发器，该类是一个接口，代表一个 Quartz 的独立运行容器
+        Trigger 和 JobDetail 可以注册到 Scheduler 中，两者在 Scheduler 中拥有各自的组及名称
+        组及名称是 Scheduler 查找定位容器中某一对象的依据，Trigger、JobDetail 的组及名称必须唯一
+        JobDetail和Trigger的组和名称可以相同
+    Trigger:
+        Quartz 中的触发器，是一个类，描述触发 Job 执行的时间触发规则
+        主要有 SimpleTrigger 和 CronTrigger 这两个子类
+        当且仅当需调度一次或者以固定时间间隔周期执行调度，SimpleTrigger 是最适合的选择；
+        而 CronTrigger 则可以通过 Cron 表达式定义出各种复杂时间规则的调度方案：如工作日周一到周五的 15：00 ~ 16：00 执行调度等
+    JobDetail:
+        Quartz 中需要执行的任务详情，包括了任务的唯一标识和具体要执行的任务，可以通过 JobDataMap 往任务中传递数据
+    Job:
+        Quartz 中具体的任务，包含了执行任务的具体方法
+        是一个接口，只定义一个方法 execute() 方法，在实现接口的 execute() 方法中编写所需要定时执行的 Job
+作业存储类型:
+    RAMJobStore
+        RAM 也就是内存，默认情况下 Quartz 会将任务调度存储在内存中
+    JDBC
+        存到数据库之后，可以做单点也可以做集群
+        缺点就是运行速度快慢取决于连接数据库的快慢
+Cron表达式:
+    Seconds Minutes Hours DayofMonth Month DayofWeek
+    在线生成器: https://cron.qqe2.com/
+SpringBoot整合:
+    sql脚本:
+        http://www.quartz-scheduler.org/downloads/
+    pom引入:
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
+    配置文件:
+        默认情况下，Quartz 会加载 classpath 下的 quartz.properties 作为配置文件
+        如果找不到，则会使用 quartz 框架自己 jar 包下 org/quartz 底下的 quartz.properties 文件
+        quartz.properties

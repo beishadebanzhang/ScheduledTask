@@ -1,0 +1,13 @@
+配置项:
+    org.quartz.jobStore.class = org.quartz.simpl.RAMJobStore/org.quartz.impl.jdbcjobstore.JobStoreTX
+JDBC JobStore:
+    Quartz发行版的“docs / dbTables”目录中找到表创建SQL脚本
+    所有的表都以前缀“QRTZ_”开始（如表“QRTZ_TRIGGERS”和“QRTZ_JOB_DETAIL”）, 可在配置文件中自定义前缀
+    // todo Quartz事务问题 JobStoreTX | JobStoreCMT
+    // todo 连接管理 Quartz创建和管理DataSource本身 | 应用程序服务器管理的DataSource，通过提供JDBCJobStore DataSource的JNDI名称
+TerracottaJobStore:
+    StdSchedulerFactory
+        使用一组属性（java.util.Properties）来创建和初始化Quartz Scheduler。
+        属性通常存储在文件中并从文件中加载，但也可以由程序创建并直接传递到工厂
+    DirectSchedulerFactory
+        它不允许声明性配置 - 换句话说，你最终会硬 - 编辑所有调度程序的设置

@@ -1,0 +1,50 @@
+定义了一个实现Job接口的类，这个类仅仅表明该job需要完成什么类型的任务
+除此之外，Quartz还需要知道该Job实例所包含的属性；这将由JobDetail类来完成
+JobDetail实例是通过JobBuilder类创建:
+    JobDetail job = newJob(HelloJob.class)
+          .withIdentity("myJob", "group1") // name "myJob", group "group1"
+          .build();
+每次当scheduler执行job时，在调用其execute(…)方法之前会创建该类的一个新的实例；执行完毕，对该实例的引用就被丢弃了
+    --> job必须有一个无参的构造函数（当使用默认的JobFactory时）
+    --> 在job类中，不应该定义有状态的数据属性，因为在job的多次执行中，这些属性的值不会保留
+        --> 使用JobDataMap给job实例增加属性或配置, 在job的多次执行中，跟踪job的状态呢
+JobDataMap:
+    JobDataMap中可以包含不限量的（序列化的）数据对象，在job实例执行的时候，可以使用其中的数据
+    定义:
+        JobDetail job = newJob(DumbJob.class)
+              .withIdentity("myJob", "group1") // name "myJob", group "group1"
+              .usingJobData("jobSays", "Hello World!")
+              .usingJobData("myFloatValue", 3.141f)
+              .build();
+    使用:
+        DumbJob implements Job: execute(JobExecutionContext context)
+            JobDataMap dataMap = context.getJobDetail().getJobDataMap();
+            String jobSays = dataMap.getString("jobSays");
+            // JobDetail中的JobDataMap和Trigger中的JobDataMap的并集, trigger中的会覆盖jobDetail中的
+            JobDataMap dataMap = context.getMergedJobDataMap();
+    自动注入:
+        DumbJob implements Job
+            String jobSays; --> 实现set方法, 且jobDataMap中存在, 默认JobFactory实现在job被实例化时注入值
+Job实例:
+    可以只创建一个job类，然后创建多个与该job关联的JobDetail实例，每一个实例都有自己的属性集和JobDataMap, 最后，将所有的实例都加到scheduler中
+    保存后的JobDetail称为“job定义”或者“JobDetail实例”, 一般“job”指JobDetail, “job类”指job接口实现类
+Job状态与并发:
+    @DisallowConcurrentExecution:
+        将该注解加到job类上, 告诉Quartz不要并发地执行一个jobDetail下, 同一个job接口实现类的多个实例
+        该限制是针对JobDetail的，而不是job类的
+    @PersistJobDataAfterExecution:
+        将该注解加在job类上, 成功执行了job类的execute方法后（没有发生任何异常）, 更新JobDetail中JobDataMap的数据
+        使得该job（即JobDetail）在下一次执行的时候，JobDataMap中是更新后的数据，而不是更新前的旧数据
+        该限制是针对JobDetail的，而不是job类的
+    @PersistJobDataAfterExecution注解和@DisallowConcurrentExecution一般同时使用
+        --> 当同一个job（JobDetail）的两个实例被并发执行时，由于竞争，JobDataMap中存储的数据很可能是不确定的
+Job的其它特性:
+    通过JobDetail对象，可以给job实例配置的其它属性有
+        Durability：如果一个job是非持久的，当没有活跃的trigger与之关联的时候，会被自动地从scheduler中删除
+            --> 非持久的job的生命期是由trigger的存在与否决定的
+        RequestsRecovery：
+            如果一个job是可恢复的，并且在其执行的时候，scheduler发生硬关闭（hard shutdown)（比如运行的进程崩溃了，或者关机了）
+            则当scheduler重新启动的时候，该job会被重新执行
+            此时，该job的JobExecutionContext.isRecovering() 返回true
+JobExecutionException:
+    Job.execute(..)方法仅允许抛出一种类型的异常, 即JobExecutionException

@@ -1,0 +1,16 @@
+public interface SchedulerListener:
+    public void jobScheduled(Trigger trigger);
+    public void jobUnscheduled(String triggerName, String triggerGroup);
+    public void triggerFinalized(Trigger trigger);
+    public void triggersPaused(String triggerName, String triggerGroup);
+    public void triggersResumed(String triggerName, String triggerGroup);
+    public void jobsPaused(String jobName, String jobGroup);
+    public void jobsResumed(String jobName, String jobGroup);
+    public void schedulerError(String msg, SchedulerException cause);
+    public void schedulerStarted();
+    public void schedulerInStandbyMode();
+    public void schedulerShutdown();
+    public void schedulingDataCleared();
+添加与删除:
+    scheduler.getListenerManager().addSchedulerListener(mySchedListener);
+    scheduler.getListenerManager().removeSchedulerListener(mySchedListener);
